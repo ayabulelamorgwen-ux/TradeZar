@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeZar | Budget-Friendly Trading Journal for South African Traders</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#0f172a'
+                        },
+                        zar: {
+                            green: '#10b981',
+                            red: '#ef4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-50 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/20 text-white">
+                    TZ
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-white block leading-none">TradeZar <span class="text-blue-500 text-xs px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">PRO</span></span>
+                    <span class="text-xs text-slate-400">SA's #1 Prop & Forex Journal</span>
+                </div>
+            </div>
+
+            <!-- Global Currency & Quick Actions -->
+            <div class="flex items-center gap-3">
+                <!-- ZAR / USD Currency Switcher -->
+                <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center text-xs font-semibold">
+                    <button id="btn-zar" onclick="setCurrency('ZAR')" class="px-2.5 py-1 rounded-md bg-blue-600 text-white transition">ZAR (R)</button>
+                    <button id="btn-usd" onclick="setCurrency('USD')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">USD (\$)</button>
+                </div>
+
+                <!-- Connect Account Button -->
+                <button onclick="openSyncModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-plug text-xs"></i>
+                    <span class="hidden sm:inline">Sync Account</span>
+                </button>
+
+                <!-- Log New Trade -->
+                <button onclick="openTradeModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Log Trade</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+        <!-- Banner / Prop Firm Sync Alert -->
+        <div class="bg-gradient-to-r from-blue-900/40 via-slate-900 to-purple-900/40 border border-blue-500/30 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl text-xl">
+                    <i class="fa-solid fa-sync fa-spin"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm sm:text-base">Automatic Sync & Prop Firm Integration</h3>
+                    <p class="text-xs text-slate-400">Connect MetaTrader 4/5 EA, FTMO, FundedNext, or Exness accounts for instant automated trade logging.</p>
+                </div>
+            </div>
+            <button onclick="openSyncModal()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">
+                Manage Connections (3 Active)
+            </button>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Net P&L -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Net Return</span>
+                <div id="kpi-pnl" class="text-2xl font-black text-emerald-400 mt-1">+R 42,850.00</div>
+                <span class="text-xs text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+                    <i class="fa-solid fa-arrow-up-right"></i> +14.2% Account Gain
+                </span>
+            </div>
+
+            <!-- Win Rate % -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Win Rate</span>
+                <div class="text-2xl font-black text-white mt-1">68.4%</div>
+                <span class="text-xs text-slate-400 mt-1 block">26 Wins / 12 Losses</span>
+            </div>
+
+            <!-- Profit Factor -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Profit Factor</span>
+                <div class="text-2xl font-black text-blue-400 mt-1">2.41</div>
+                <span class="text-xs text-blue-400 font-semibold mt-1 block">Avg R:R 1:2.3</span>
+            </div>
+
+            <!-- Total Trades -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Trades</span>
+                <div class="text-2xl font-black text-white mt-1">38</div>
+                <span class="text-xs text-slate-400 mt-1 block">Top Pair: XAU/USD</span>
+            </div>
+        </div>
+
+        <!-- Main Chart & Analytics Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Cumulative Equity Curve Chart -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-bold text-white">Cumulative Equity Curve</h2>
+                        <p class="text-xs text-slate-400">Growth trajectory across connected prop accounts</p>
+                    </div>
+                    <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-bold">
+                        Funded Phase Passed
+                    </span>
+                </div>
+                <!-- Interactive Canvas Line -->
+                <div class="w-full h-56 relative flex items-end">
+                    <canvas id="equityChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <!-- Position Size & SA Risk Calculator -->
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-calculator text-blue-500"></i>
+                        <h2 class="font-bold text-white">SA Risk Calculator</h2>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="text-slate-400 block mb-1">Account Balance (<span class="currency-symbol">ZAR</span>)</label>
+                            <input type="number" id="calc-balance" value="300000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Risk (%)</label>
+                                <input type="number" id="calc-risk-percent" value="1.0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Stop Loss (Pips)</label>
+                                <input type="number" id="calc-sl-pips" value="25" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1">Asset Class</label>
+                            <select id="calc-asset" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500">
+                                <option value="xauusd">XAU/USD (Gold)</option>
+                                <option value="nas100">NAS100 / USTEC</option>
+                                <option value="forex">EUR/USD or GBP/USD</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-800 bg-slate-950 p-3 rounded-xl">
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span>Max Risk Amount:</span>
+                        <span id="calc-risk-amt" class="font-bold text-red-400">R 3,000.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold text-white mt-1">
+                        <span>Recommended Lot Size:</span>
+                        <span id="calc-lot-size" class="text-blue-400 text-base">1.20 Lots</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Filterable Trade Log Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h2 class="font-bold text-white">Trade Journal Logs</h2>
+                    <p class="text-xs text-slate-400">Automatically synced from linked broker & prop firm MT4/MT5 accounts</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs w-full sm:w-auto">
+                    <input type="text" id="table-search" placeholder="Filter by pair or tag..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 w-full sm:w-48 focus:outline-none focus:border-blue-500">
+                    <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl border border-slate-700 font-semibold transition whitespace-nowrap">
+                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Account</th>
+                            <th class="p-3">Pair</th>
+                            <th class="p-3">Type</th>
+                            <th class="p-3">Lots</th>
+                            <th class="p-3">Setup / Strategy</th>
+                            <th class="p-3">Tags</th>
+                            <th class="p-3 text-right">Net P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trade-rows" class="divide-y divide-slate-800/50">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3 text-slate-400">Today, 14:32</td>
+                            <td class="p-3 font-semibold text-purple-400"><i class="fa-solid fa-bolt"></i> FundedNext \$100k</td>
+                            <td class="p-3 font-extrabold text-white">XAU/USD</td>
+                            <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">BUY</span></td>
+                            <td class="p-3">2.50</td>
+                            <td class="p-3">NY Session Breakout</td>
+                            <td class="p-3"><span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded">#PlannedTrade</span></td>
+                            <td class="p-3 text-right font-black text-emerald-400 pnl-val" data-zar="14250" data-usd="750">+R 14,250.00</td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3 text-slate-400">Yesterday, 16:10</td>
+                            <td class="p-3 font-semibold text-blue-400"><i class="fa-solid fa-shield-halved"></i> FTMO \$50k</td>
+                            <td class="p-3 font-extrabold text-white">NAS100</td>
+                            <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">BUY</span></td>
+                            <td class="p-3">1.00</td>
+                            <td class="p-3">Liquidity Sweep</td>
+                            <td class="p-3"><span class="bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded">#Disciplined</span></td>
+                            <td class="p-3 text-right font-black text-emerald-400 pnl-val" data-zar="8550" data-usd="450">+R 8,550.00</td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3 text-slate-400">Oct 11, 09:15</td>
+                            <td class="p-3 font-semibold text-amber-400"><i class="fa-solid fa-chart-line"></i> Exness Personal</td>
+                            <td class="p-3 font-extrabold text-white">EUR/USD</td>
+                            <td class="p-3"><span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded font-bold">SELL</span></td>
+                            <td class="p-3">3.00</td>
+                            <td class="p-3">Trend Continuation</td>
+                            <td class="p-3"><span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded">#FOMO</span></td>
+                            <td class="p-3 text-right font-black text-red-400 pnl-val" data-zar="-4750" data-usd="-250">-R 4,750.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Prop Firm & Account Sync Modal -->
+    <div id="sync-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeSyncModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-blue-600/20 text-blue-400 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-plug"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-base">Connect Account Sync</h3>
+                    <p class="text-xs text-slate-400">Link MT4/MT5 via EA or API Read-Only Key</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="text-slate-400 block mb-1">Select Platform / Prop Firm</label>
+                    <select class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white font-semibold">
+                        <option>MetaTrader 4 / 5 (TradeZar Sync EA)</option>
+                        <option>FTMO Challenge / Account</option>
+                        <option>FundedNext Account</option>
+                        <option>Exness Real Account</option>
+                        <option>MyForexFunds / Custom Broker</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-slate-400 block mb-1">Account Number / Login ID</label>
+                    <input type="text" placeholder="e.g. 8839210" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white placeholder-slate-600">
+                </div>
+
+                <div>
+                    <label class="text-slate-400 block mb-1">Investor Password (Read Only)</label>
+                    <input type="password" placeholder="••••••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white">
+                </div>
+
+                <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-300">
+                    <i class="fa-solid fa-shield-halved mr-1"></i>
+                    TradeZar uses 256-bit encryption and read-only investor access. We can never execute trades or withdraw funds.
+                </div>
+
+                <button onclick="simulateConnect()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-600/20">
+                    Establish Auto Sync
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Trade Log Modal -->
+    <div id="trade-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeTradeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-white text-base mb-4">Manual Trade Journal Entry</h3>
+
+            <div class="space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-slate-400 block mb-1">Pair / Symbol</label>
+                        <input type="text" id="new-pair" value="XAU/USD" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1">Direction</label>
+                        <select id="new-dir" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold">
+                            <option value="BUY">BUY</option>
+                            <option value="SELL">SELL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-slate-400 block mb-1">Lot Size</label>
+                        <input type="number" id="new-lots" value="1.00" step="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1">Profit/Loss (ZAR)</label>
+                        <input type="number" id="new-pnl" value="3500" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-slate-400 block mb-1">Strategy Setup</label>
+                    <input type="text" id="new-strategy" value="London Session Breakout" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <button onclick="saveTrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition mt-2">
+                    Save Trade Entry
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        let currentCurrency = 'ZAR';
+        const zarRate = 19.0; // 1 USD = 19 ZAR
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            const isZar = curr === 'ZAR';
+
+            // Toggle active styling on buttons
+            document.getElementById('btn-zar').className = isZar ? 'px-2.5 py-1 rounded-md bg-blue-600 text-white transition' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+            document.getElementById('btn-usd').className = !isZar ? 'px-2.5 py-1 rounded-md bg-blue-600 text-white transition' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+
+            // Update KPI PnL
+            const kpiPnl = document.getElementById('kpi-pnl');
+            kpiPnl.textContent = isZar ? '+R 42,850.00' : '+\$2,255.26';
+
+            // Update Currency Symbol Indicators
+            document.querySelectorAll('.currency-symbol').forEach(el => el.textContent = isZar ? 'ZAR' : 'USD');
+
+            // Update Table PnL values
+            document.querySelectorAll('.pnl-val').forEach(el => {
+                const zarVal = parseFloat(el.getAttribute('data-zar'));
+                const usdVal = parseFloat(el.getAttribute('data-usd'));
+                const val = isZar ? zarVal : usdVal;
+                const prefix = val >= 0 ? (isZar ? '+R ' : '+$') : (isZar ? '-R ' : '-$');
+                el.textContent = prefix + Math.abs(val).toLocaleString(undefined, {minimumFractionDigits: 2});
+            });
+
+            // Re-calculate Risk Calculator
+            calculateRisk();
+        }
+
+        // Risk Calculator Logic
+        function calculateRisk() {
+            const balance = parseFloat(document.getElementById('calc-balance').value) || 0;
+            const riskPct = parseFloat(document.getElementById('calc-risk-percent').value) || 0;
+            const slPips = parseFloat(document.getElementById('calc-sl-pips').value) || 1;
+
+            const maxRisk = (balance * (riskPct / 100));
+            const symbol = currentCurrency === 'ZAR' ? 'R ' : '\$';
+            
+            document.getElementById('calc-risk-amt').textContent = symbol + maxRisk.toLocaleString(undefined, {minimumFractionDigits: 2});
+
+            // Rough lot size estimate for XAU/USD
+            const lotEstimate = (maxRisk / (slPips * 100)).toFixed(2);
+            document.getElementById('calc-lot-size').textContent = Math.max(0.01, lotEstimate) + ' Lots';
+        }
+
+        document.getElementById('calc-balance').addEventListener('input', calculateRisk);
+        document.getElementById('calc-risk-percent').addEventListener('input', calculateRisk);
+        document.getElementById('calc-sl-pips').addEventListener('input', calculateRisk);
+
+        // Modal Controls
+        function openSyncModal() { document.getElementById('sync-modal').classList.remove('hidden'); }
+        function closeSyncModal() { document.getElementById('sync-modal').classList.add('hidden'); }
+        function openTradeModal() { document.getElementById('trade-modal').classList.remove('hidden'); }
+        function closeTradeModal() { document.getElementById('trade-modal').classList.add('hidden'); }
+
+        function simulateConnect() {
+            alert('Successfully connected TradeZar EA Sync! Incoming trades will automatically populate.');
+            closeSyncModal();
+        }
+
+        function saveTrade() {
+            const pair = document.getElementById('new-pair').value;
+            const dir = document.getElementById('new-dir').value;
+            const lots = document.getElementById('new-lots').value;
+            const pnl = parseFloat(document.getElementById('new-pnl').value);
+            const strat = document.getElementById('new-strategy').value;
+
+            const tbody = document.getElementById('trade-rows');
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/30 transition";
+
+            const isWin = pnl >= 0;
+            const dirColor = dir === 'BUY' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400';
+            const pnlColor = isWin ? 'text-emerald-400' : 'text-red-400';
+
+            tr.innerHTML = `
+                <td class="p-3 text-slate-400">Just Now</td>
+                <td class="p-3 font-semibold text-blue-400"><i class="fa-solid fa-user"></i> Personal Account</td>
+                <td class="p-3 font-extrabold text-white">${pair}</td>
+                <td class="p-3"><span class="${dirColor} px-2 py-0.5 rounded font-bold">${dir}</span></td>
+                <td class="p-3">${lots}</td>
+                <td class="p-3">${strat}</td>
+                <td class="p-3"><span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded">#ManualEntry</span></td>
+                <td class="p-3 text-right font-black ${pnlColor} pnl-val" data-zar="${pnl}" data-usd="${(pnl/zarRate).toFixed(2)}">+R ${pnl.toLocaleString()}</td>
+            `;
+
+            tbody.prepend(tr);
+            closeTradeModal();
+            setCurrency(currentCurrency);
+        }
+
+        // Render Canvas Equity Curve
+        function drawChart() {
+            const canvas = document.getElementById('equityChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const data = [10000, 12500, 11800, 15400, 18900, 17200, 24500, 31000, 29800, 42850];
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw line
+            ctx.beginPath();
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+
+            data.forEach((val, index) => {
+                const x = (index / (data.length - 1)) * canvas.width;
+                const y = canvas.height - ((val - min) / (max - min)) * (canvas.height - 40) - 20;
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Gradient Fill
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        window.addEventListener('resize', drawChart);
+        setTimeout(drawChart, 100);
+    </script>
+</body>
+</html>
